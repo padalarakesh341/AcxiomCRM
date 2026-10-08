@@ -1,0 +1,89 @@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold mb-1">Opportunity Pipeline - Kanban Board</h3>
+    <p class="text-muted small mb-0">Drag and transition sales opportunities across qualification and closing stages.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/opportunities" class="btn btn-outline-secondary shadow-sm">
+      <i class="bi bi-table me-1"></i> Table View
+    </a>
+    <a href="/opportunities/new" class="btn btn-primary shadow-sm fw-semibold">
+      <i class="bi bi-plus-lg me-1"></i> New Opportunity
+    </a>
+  </div>
+</div>
+
+<!-- Kanban Columns -->
+<div class="kanban-board">
+  <% const stages = [
+    { key: 'Qualification', label: '1. Qualification', color: '#0ea5e9' },
+    { key: 'Proposal', label: '2. Proposal', color: '#f59e0b' },
+    { key: 'Negotiation', label: '3. Negotiation', color: '#8b5cf6' },
+    { key: 'Won', label: '4. Closed Won', color: '#10b981' },
+    { key: 'Lost', label: '5. Closed Lost', color: '#ef4444' }
+  ]; %>
+
+  <% stages.forEach(col => { %>
+    <% const opps = columns[col.key] || []; %>
+    <% const totalColAmount = opps.reduce((acc, o) => acc + (parseFloat(o.amount) || 0), 0); %>
+    <div class="kanban-column">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0 text-dark" style="border-left: 3px solid <%= col.color %>; padding-left: 8px;">
+          <%= col.label %>
+        </h6>
+        <span class="badge bg-secondary rounded-pill"><%= opps.length %></span>
+      </div>
+      <div class="small text-muted mb-3 fw-semibold">
+        Total: $<%= Number(totalColAmount).toLocaleString('en-US', { minimumFractionDigits: 0 }) %>
+      </div>
+
+      <div class="kanban-items">
+        <% if (opps.length === 0) { %>
+          <div class="text-center text-muted small py-4 bg-white rounded border border-dashed">
+            No deals in stage
+          </div>
+        <% } %>
+        <% opps.forEach(o => { %>
+          <div class="kanban-card">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <a href="/opportunities/<%= o.id %>/edit" class="fw-bold text-dark text-decoration-none small">
+                <%= o.name %>
+              </a>
+            </div>
+            <div class="small text-muted mb-2">
+              <i class="bi bi-building me-1"></i><%= o.customer_name %>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-primary">$<%= Number(o.amount).toLocaleString() %></span>
+              <span class="badge bg-light text-dark border small"><%= o.probability %>%</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+              <small class="text-muted"><i class="bi bi-person me-1"></i><%= o.owner_name %></small>
+              
+              <!-- Quick Stage Advance Dropdown -->
+              <div class="dropdown">
+                <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" title="Move Stage">
+                  Move
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm small">
+                  <% stages.forEach(s => { %>
+                    <% if (s.key !== col.key) { %>
+                      <li>
+                        <form action="/opportunities/<%= o.id %>/stage" method="POST" class="m-0">
+                          <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+                          <input type="hidden" name="stage" value="<%= s.key %>">
+                          <input type="hidden" name="returnUrl" value="/opportunities/kanban">
+                          <button type="submit" class="dropdown-item py-1">To <%= s.label %></button>
+                        </form>
+                      </li>
+                    <% } %>
+                  <% }) %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% }) %>
+</div>

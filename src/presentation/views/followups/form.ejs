@@ -1,0 +1,128 @@
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="bi bi-calendar-plus-fill me-2 text-primary"></i>Schedule Follow-Up Task
+        </h5>
+        <a href="/followups" class="btn btn-sm btn-outline-secondary">Cancel</a>
+      </div>
+      <div class="card-body p-4">
+        <form action="/followups" method="POST" class="needs-validation" novalidate>
+          <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Subject / Meeting Title <span class="text-danger">*</span></label>
+            <input type="text" name="subject" class="form-control" placeholder="e.g. Solution Demo Presentation to VP of Ops" required>
+            <div class="invalid-feedback">Subject is required.</div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Target Entity Type</label>
+              <select name="entityType" id="entityTypeSelect" class="form-select">
+                <option value="Customer" <%= followUp.entity_type === 'Customer' ? 'selected' : '' %>>Customer</option>
+                <option value="Lead" <%= followUp.entity_type === 'Lead' ? 'selected' : '' %>>Lead</option>
+                <option value="Opportunity" <%= followUp.entity_type === 'Opportunity' ? 'selected' : '' %>>Opportunity</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Select Associated Record <span class="text-danger">*</span></label>
+              <select name="entityId" id="entityIdSelect" class="form-select" required>
+                <option value="">-- Choose Record --</option>
+                <% customers.forEach(c => { %>
+                  <option value="<%= c.id %>" class="entity-opt entity-Customer" <%= (followUp.entity_type === 'Customer' && String(followUp.entity_id) === String(c.id)) ? 'selected' : '' %>>
+                    <%= c.name %> (<%= c.company || 'Customer' %>)
+                  </option>
+                <% }) %>
+                <% leads.forEach(l => { %>
+                  <option value="<%= l.id %>" class="entity-opt entity-Lead" <%= (followUp.entity_type === 'Lead' && String(followUp.entity_id) === String(l.id)) ? 'selected' : '' %>>
+                    <%= l.title %> (<%= l.contact_person %>)
+                  </option>
+                <% }) %>
+                <% opportunities.forEach(o => { %>
+                  <option value="<%= o.id %>" class="entity-opt entity-Opportunity" <%= (followUp.entity_type === 'Opportunity' && String(followUp.entity_id) === String(o.id)) ? 'selected' : '' %>>
+                    <%= o.name %> ($<%= Number(o.amount).toLocaleString() %>)
+                  </option>
+                <% }) %>
+              </select>
+              <div class="invalid-feedback">Target record selection is required.</div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Due Date / Meeting Date <span class="text-danger">*</span></label>
+              <% const todayStr = new Date().toISOString().split('T')[0]; %>
+              <input type="date" name="followUpDate" class="form-control" min="<%= todayStr %>" value="<%= todayStr %>" required>
+              <div class="invalid-feedback">Follow-up date cannot be earlier than today.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Activity Type</label>
+              <select name="type" class="form-select">
+                <option value="Call">Call</option>
+                <option value="Email">Email</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Demo">Demo</option>
+                <option value="Task">Task</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Assigned Executive</label>
+            <% const userRole = currentUser.role_name || currentUser.role; %>
+            <% if (userRole === 'Sales Executive') { %>
+              <input type="text" class="form-control bg-light" value="<%= currentUser.full_name %>" readonly>
+              <input type="hidden" name="assignedUserId" value="<%= currentUser.id %>">
+            <% } else { %>
+              <select name="assignedUserId" class="form-select">
+                <% executives.forEach(e => { %>
+                  <option value="<%= e.id %>" <%= currentUser.id === e.id ? 'selected' : '' %>>
+                    <%= e.full_name %> (<%= e.role_name %>)
+                  </option>
+                <% }) %>
+              </select>
+            <% } %>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-semibold">Agenda & Interaction Notes</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Key topics to discuss, presentation collateral required..."></textarea>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/followups" class="btn btn-light border px-4">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4 fw-semibold shadow-sm">
+              <i class="bi bi-calendar-check me-1"></i> Save Follow-Up
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const typeSelect = document.getElementById('entityTypeSelect');
+    const idSelect = document.getElementById('entityIdSelect');
+
+    function filterOptions() {
+      const selectedType = typeSelect.value;
+      const opts = idSelect.querySelectorAll('.entity-opt');
+      opts.forEach(opt => {
+        if (opt.classList.contains(`entity-${selectedType}`)) {
+          opt.style.display = '';
+        } else {
+          opt.style.display = 'none';
+        }
+      });
+    }
+
+    if (typeSelect && idSelect) {
+      typeSelect.addEventListener('change', filterOptions);
+      filterOptions();
+    }
+  });
+</script>

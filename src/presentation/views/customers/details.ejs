@@ -1,0 +1,140 @@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2">
+      <h3 class="fw-bold mb-0"><%= customer.name %></h3>
+      <span class="badge <%= customer.status === 'Active' ? 'bg-success' : (customer.status === 'Lead' ? 'bg-info' : 'bg-secondary') %>">
+        <%= customer.status %>
+      </span>
+    </div>
+    <p class="text-muted small mb-0"><%= customer.company || 'Individual Client' %> &bull; Member since <%= customer.created_at ? customer.created_at.split(' ')[0] : '' %></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/opportunities/new" class="btn btn-primary btn-sm fw-semibold">
+      <i class="bi bi-trophy me-1"></i> New Opportunity
+    </a>
+    <a href="/followups/new?entityType=Customer&entityId=<%= customer.id %>" class="btn btn-outline-primary btn-sm fw-semibold">
+      <i class="bi bi-calendar-plus me-1"></i> Schedule Follow-Up
+    </a>
+    <a href="/customers/<%= customer.id %>/edit" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i> Edit
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Customer Overview Card -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h6 class="card-title mb-0 fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Contact Information</h6>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="text-muted small">Email Address</div>
+          <div class="fw-semibold"><a href="mailto:<%= customer.email %>" class="text-decoration-none"><%= customer.email %></a></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small">Phone Number</div>
+          <div class="fw-semibold"><a href="tel:<%= customer.phone %>" class="text-decoration-none"><%= customer.phone %></a></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small">Assigned Executive</div>
+          <div class="fw-semibold"><%= customer.assigned_to_name || 'Unassigned' %></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small">Address</div>
+          <div><%= customer.address || 'No address provided' %></div>
+        </div>
+        <div>
+          <div class="text-muted small">Notes</div>
+          <div class="p-2 bg-light rounded small mt-1"><%= customer.notes || 'No notes added.' %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Associated Opportunities & Follow-Ups -->
+  <div class="col-lg-8">
+    <!-- Opportunities -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="card-title mb-0 fw-bold"><i class="bi bi-trophy me-2 text-primary"></i>Opportunities (<%= activities.opportunities.length %>)</h6>
+        <a href="/opportunities/new" class="small text-decoration-none">+ Add</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Deal Name</th>
+              <th>Stage</th>
+              <th>Amount</th>
+              <th>Expected Close</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (activities.opportunities.length === 0) { %>
+              <tr><td colspan="4" class="text-center text-muted py-3">No opportunities logged yet.</td></tr>
+            <% } %>
+            <% activities.opportunities.forEach(opp => { %>
+              <tr>
+                <td><a href="/opportunities/<%= opp.id %>/edit" class="fw-semibold text-decoration-none"><%= opp.name %></a></td>
+                <td><span class="badge bg-primary-subtle text-primary border"><%= opp.stage %></span></td>
+                <td class="fw-bold">$<%= Number(opp.amount).toLocaleString() %></td>
+                <td class="small text-muted"><%= opp.expected_close_date %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Follow-Ups -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="card-title mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Follow-Up History (<%= activities.followUps.length %>)</h6>
+        <a href="/followups/new?entityType=Customer&entityId=<%= customer.id %>" class="small text-decoration-none">+ Schedule</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Type</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (activities.followUps.length === 0) { %>
+              <tr><td colspan="5" class="text-center text-muted py-3">No follow-ups recorded.</td></tr>
+            <% } %>
+            <% activities.followUps.forEach(f => { %>
+              <tr>
+                <td class="fw-semibold"><%= f.subject %></td>
+                <td><span class="badge bg-light text-dark border"><%= f.type %></span></td>
+                <td class="small text-muted"><%= f.follow_up_date %></td>
+                <td>
+                  <span class="badge <%= f.status === 'Completed' ? 'bg-success' : 'bg-warning text-dark' %>">
+                    <%= f.status %>
+                  </span>
+                </td>
+                <td>
+                  <% if (f.status === 'Planned') { %>
+                    <form action="/followups/<%= f.id %>/complete" method="POST" class="d-inline m-0">
+                      <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+                      <input type="hidden" name="returnUrl" value="/customers/<%= customer.id %>">
+                      <button type="submit" class="btn btn-sm btn-outline-success py-0 px-2">Complete</button>
+                    </form>
+                  <% } else { %>
+                    <small class="text-muted"><%= f.completed_at ? f.completed_at.split(' ')[0] : 'Done' %></small>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

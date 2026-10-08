@@ -1,0 +1,172 @@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2">
+      <h3 class="fw-bold mb-0"><%= lead.title %></h3>
+      <span class="badge <%= lead.status === 'Converted' ? 'bg-success' : (lead.status === 'Qualified' ? 'bg-info' : 'bg-primary') %>">
+        <%= lead.status %>
+      </span>
+      <span class="badge <%= lead.priority === 'High' ? 'bg-danger' : 'bg-secondary' %>">
+        <%= lead.priority %> Priority
+      </span>
+    </div>
+    <p class="text-muted small mb-0"><%= lead.company || 'Direct Contact' %> &bull; Captured on <%= lead.created_at ? lead.created_at.split(' ')[0] : '' %></p>
+  </div>
+  <div class="d-flex gap-2">
+    <% if (lead.status === 'Qualified') { %>
+      <button type="button" class="btn btn-success btn-sm fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#convertLeadModal">
+        <i class="bi bi-arrow-repeat me-1"></i> Convert to Deal & Customer
+      </button>
+    <% } %>
+    <a href="/followups/new?entityType=Lead&entityId=<%= lead.id %>" class="btn btn-outline-primary btn-sm fw-semibold">
+      <i class="bi bi-calendar-plus me-1"></i> Schedule Follow-Up
+    </a>
+    <% if (lead.status !== 'Converted') { %>
+      <a href="/leads/<%= lead.id %>/edit" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-pencil me-1"></i> Edit
+      </a>
+    <% } %>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Lead Overview Card -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h6 class="card-title mb-0 fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Prospect Details</h6>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="text-muted small">Contact Person</div>
+          <div class="fw-semibold fs-6"><%= lead.contact_person %></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small">Email Address</div>
+          <div class="fw-semibold"><a href="mailto:<%= lead.email %>" class="text-decoration-none"><%= lead.email %></a></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small">Phone Number</div>
+          <div class="fw-semibold"><a href="tel:<%= lead.phone %>" class="text-decoration-none"><%= lead.phone %></a></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small">Lead Source</div>
+          <div><span class="badge bg-light text-dark border"><%= lead.source %></span></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small">Assigned Executive</div>
+          <div class="fw-semibold"><%= lead.assigned_to_name || 'Unassigned' %></div>
+        </div>
+        <% if (lead.converted_customer_id) { %>
+          <div class="p-3 bg-success-subtle rounded-3 border border-success-subtle mb-3">
+            <div class="small fw-bold text-success"><i class="bi bi-check-circle-fill me-1"></i>Converted Record:</div>
+            <div class="small mt-1">Customer: <a href="/customers/<%= lead.converted_customer_id %>" class="fw-semibold text-success"><%= lead.converted_customer_name || 'View Customer' %></a></div>
+          </div>
+        <% } %>
+        <div>
+          <div class="text-muted small">Discovery Notes</div>
+          <div class="p-2 bg-light rounded small mt-1"><%= lead.notes || 'No discovery notes entered.' %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Associated Follow-Ups -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="card-title mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Follow-Up Activities (<%= activities.length %>)</h6>
+        <a href="/followups/new?entityType=Lead&entityId=<%= lead.id %>" class="small text-decoration-none">+ Schedule</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (activities.length === 0) { %>
+              <tr><td colspan="5" class="text-center text-muted py-3">No follow-ups logged for this lead.</td></tr>
+            <% } %>
+            <% activities.forEach(f => { %>
+              <tr>
+                <td class="fw-semibold"><%= f.subject %></td>
+                <td><span class="badge bg-light text-dark border"><%= f.type %></span></td>
+                <td class="small text-muted"><%= f.follow_up_date %></td>
+                <td>
+                  <span class="badge <%= f.status === 'Completed' ? 'bg-success' : 'bg-warning text-dark' %>"><%= f.status %></span>
+                </td>
+                <td>
+                  <% if (f.status === 'Planned') { %>
+                    <form action="/followups/<%= f.id %>/complete" method="POST" class="d-inline m-0">
+                      <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+                      <input type="hidden" name="returnUrl" value="/leads/<%= lead.id %>">
+                      <button type="submit" class="btn btn-sm btn-outline-success py-0 px-2">Complete</button>
+                    </form>
+                  <% } else { %>
+                    <small class="text-muted"><%= f.completed_at ? f.completed_at.split(' ')[0] : 'Done' %></small>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Convert Lead Modal -->
+<% if (lead.status === 'Qualified') { %>
+  <div class="modal fade" id="convertLeadModal" tabindex="-1" aria-labelledby="convertModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="/leads/<%= lead.id %>/convert" method="POST">
+          <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" id="convertModalLabel"><i class="bi bi-arrow-repeat me-2 text-success"></i>Convert Qualified Lead</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="small text-muted">Converting this lead will automatically generate an active Customer account and a Sales Opportunity in the pipeline.</p>
+            
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Customer / Account Name</label>
+              <input type="text" name="customerName" class="form-control" value="<%= lead.company || lead.contact_person %>" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Opportunity Name</label>
+              <input type="text" name="opportunityName" class="form-control" value="<%= lead.title %>" required>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Deal Amount ($)</label>
+                <input type="number" step="100" name="amount" class="form-control" value="25000" min="1" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Probability (%)</label>
+                <input type="number" name="probability" class="form-control" value="50" min="0" max="100" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Expected Close Date</label>
+              <% const defaultClose = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]; %>
+              <input type="date" name="expectedCloseDate" class="form-control" value="<%= defaultClose %>" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success fw-semibold">Convert Lead</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<% } %>

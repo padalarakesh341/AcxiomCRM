@@ -1,0 +1,95 @@
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="bi bi-<%= isEdit ? 'pencil-square' : 'person-plus-fill' %> me-2 text-primary"></i>
+          <%= isEdit ? `Edit User - ${user.username}` : 'Create New System User' %>
+        </h5>
+        <a href="/users" class="btn btn-sm btn-outline-secondary">Cancel</a>
+      </div>
+      <div class="card-body p-4">
+        <form action="<%= isEdit ? `/users/${user.id}/edit` : '/users' %>" method="POST" class="needs-validation" novalidate>
+          <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Username <span class="text-danger">*</span></label>
+              <input type="text" name="username" class="form-control" placeholder="e.g. jdoe" value="<%= user.username || '' %>" <%= isEdit ? 'readonly' : 'required' %>>
+              <div class="invalid-feedback">Username is required.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="fullName" class="form-control" placeholder="e.g. Jane Doe" value="<%= user.full_name || '' %>" required>
+              <div class="invalid-feedback">Full name is required.</div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Email Address <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" placeholder="e.g. jdoe@acxiom.com" value="<%= user.email || '' %>" <%= isEdit ? 'readonly' : 'required' %>>
+              <div class="invalid-feedback">Valid email is required.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Phone Number</label>
+              <input type="text" name="phone" class="form-control" placeholder="e.g. +1-555-0155" value="<%= user.phone || '' %>">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Assigned Primary Role <span class="text-danger">*</span></label>
+              <select name="roleId" class="form-select" required>
+                <% roles.forEach(r => { %>
+                  <option value="<%= r.id %>" <%= user.role_id === r.id ? 'selected' : '' %>>
+                    <%= r.name %> - <%= r.description %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+            <% if (isEdit) { %>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Account Status</label>
+                <select name="isActive" class="form-select">
+                  <option value="1" <%= user.is_active ? 'selected' : '' %>>Active</option>
+                  <option value="0" <%= !user.is_active ? 'selected' : '' %>>Inactive</option>
+                </select>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (!isEdit) { %>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Initial Password <span class="text-danger">*</span></label>
+              <input type="password" name="password" id="newPasswordInput" class="form-control" placeholder="Enter compliant password" required>
+              <div class="invalid-feedback">Password is required.</div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 mb-4 border">
+              <div class="small fw-bold text-muted mb-2">Password Policy Requirements:</div>
+              <div class="row g-2">
+                <div class="col-sm-6">
+                  <div id="ruleLength" class="password-rule-item invalid"><i class="bi bi-circle me-1"></i> At least 8 characters</div>
+                  <div id="ruleUpper" class="password-rule-item invalid"><i class="bi bi-circle me-1"></i> Uppercase letter (A-Z)</div>
+                  <div id="ruleLower" class="password-rule-item invalid"><i class="bi bi-circle me-1"></i> Lowercase letter (a-z)</div>
+                </div>
+                <div class="col-sm-6">
+                  <div id="ruleNumber" class="password-rule-item invalid"><i class="bi bi-circle me-1"></i> At least 1 number (0-9)</div>
+                  <div id="ruleSpecial" class="password-rule-item invalid"><i class="bi bi-circle me-1"></i> Special character (!@#$%^&*)</div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="/users" class="btn btn-light border px-4">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4 fw-semibold shadow-sm">
+              <i class="bi bi-check-lg me-1"></i> <%= isEdit ? 'Save Changes' : 'Create User' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

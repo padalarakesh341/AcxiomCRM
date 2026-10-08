@@ -1,0 +1,85 @@
+<% const role = locals.currentUser ? (currentUser.role_name || currentUser.role) : ''; %>
+<aside class="sidebar">
+  <!-- Brand -->
+  <div class="brand-header">
+    <i class="bi bi-diagram-3-fill fs-4 text-primary"></i>
+    <span>Acxiom<span class="text-primary">CRM</span></span>
+  </div>
+
+  <!-- Navigation Links -->
+  <div class="flex-grow-1 overflow-auto py-3">
+    <div class="nav-category">Core</div>
+    <ul class="nav flex-column mb-3">
+      <li class="nav-item">
+        <a class="nav-link <%= locals.title && locals.title.includes('Dashboard') ? 'active' : '' %>" href="/dashboard">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="nav-category">Sales & CRM</div>
+    <ul class="nav flex-column mb-3">
+      <li class="nav-item">
+        <a class="nav-link <%= locals.title && locals.title.includes('Customer') ? 'active' : '' %>" href="/customers">
+          <i class="bi bi-people"></i>
+          <span>Customers</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= locals.title && locals.title.includes('Lead') ? 'active' : '' %>" href="/leads">
+          <i class="bi bi-funnel"></i>
+          <span>Leads</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= locals.title && locals.title.includes('Opportunity') ? 'active' : '' %>" href="/opportunities">
+          <i class="bi bi-trophy"></i>
+          <span>Opportunities</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= locals.title && locals.title.includes('Follow-Up') ? 'active' : '' %>" href="/followups">
+          <i class="bi bi-calendar-check"></i>
+          <span>Follow-Ups</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="nav-category">Analytics & Reports</div>
+    <ul class="nav flex-column mb-3">
+      <li class="nav-item">
+        <a class="nav-link <%= locals.title && locals.title.includes('Reports') ? 'active' : '' %>" href="/reports">
+          <i class="bi bi-graph-up-arrow"></i>
+          <span>Reports & Analytics</span>
+        </a>
+      </li>
+    </ul>
+
+    <% if (role === 'Admin') { %>
+      <div class="nav-category">Administration</div>
+      <ul class="nav flex-column mb-3">
+        <li class="nav-item">
+          <a class="nav-link <%= locals.title && locals.title.includes('User') ? 'active' : '' %>" href="/users">
+            <i class="bi bi-person-gear"></i>
+            <span>User & Roles</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= locals.title && locals.title.includes('Audit') ? 'active' : '' %>" href="/audit">
+            <i class="bi bi-shield-lock"></i>
+            <span>Security & Audit Log</span>
+          </a>
+        </li>
+      </ul>
+    <% } %>
+  </div>
+
+  <!-- Bottom Session Info -->
+  <div class="p-3 border-top border-secondary border-opacity-25 small">
+    <div class="d-flex align-items-center justify-content-between text-muted">
+      <div>Role: <span class="badge bg-secondary"><%= role %></span></div>
+      <a href="/api/docs" class="text-secondary" target="_blank" title="REST API Docs"><i class="bi bi-code-slash"></i></a>
+    </div>
+  </div>
+</aside>

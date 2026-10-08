@@ -1,0 +1,416 @@
+<!-- Dashboard Header & Date Filter Bar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold mb-1"><%= role %> Dashboard</h3>
+    <p class="text-muted small mb-0">Overview of CRM operations, performance metrics and sales pipeline.</p>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <div class="btn-group shadow-sm" role="group">
+      <a href="/dashboard?range=today" class="btn btn-sm btn-outline-secondary <%= dateFilter === 'today' ? 'active' : '' %>">Today</a>
+      <a href="/dashboard?range=week" class="btn btn-sm btn-outline-secondary <%= dateFilter === 'week' ? 'active' : '' %>">This Week</a>
+      <a href="/dashboard?range=month" class="btn btn-sm btn-outline-secondary <%= dateFilter === 'month' ? 'active' : '' %>">This Month</a>
+      <a href="/dashboard?range=all" class="btn btn-sm btn-outline-secondary <%= dateFilter === 'all' ? 'active' : '' %>">All Time</a>
+    </div>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <% if (role === 'Admin') { %>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Total Users</div>
+            <h3 class="fw-bold mt-1 mb-0"><%= kpiData.totalUsers %></h3>
+            <span class="small text-success"><i class="bi bi-check-circle me-1"></i><%= kpiData.activeUsers %> active</span>
+          </div>
+          <div class="kpi-icon-badge bg-primary-subtle text-primary">
+            <i class="bi bi-people-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Locked Accounts</div>
+            <h3 class="fw-bold mt-1 mb-0 <%= kpiData.lockedUsers > 0 ? 'text-danger' : '' %>"><%= kpiData.lockedUsers %></h3>
+            <span class="small text-muted"><%= kpiData.loginFailures %> failed attempts</span>
+          </div>
+          <div class="kpi-icon-badge bg-danger-subtle text-danger">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Customers & Leads</div>
+            <h3 class="fw-bold mt-1 mb-0"><%= kpiData.totalCustomers + kpiData.totalLeads %></h3>
+            <span class="small text-muted"><%= kpiData.totalCustomers %> cust / <%= kpiData.totalLeads %> leads</span>
+          </div>
+          <div class="kpi-icon-badge bg-success-subtle text-success">
+            <i class="bi bi-building"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">System Pipeline</div>
+            <h3 class="fw-bold mt-1 mb-0">$<%= Number(kpiData.totalPipeline).toLocaleString('en-US', { minimumFractionDigits: 0 }) %></h3>
+            <span class="small text-muted"><%= kpiData.totalOpportunities %> opportunities</span>
+          </div>
+          <div class="kpi-icon-badge bg-warning-subtle text-warning">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% } else if (role === 'Manager') { %>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Team Pipeline</div>
+            <h3 class="fw-bold mt-1 mb-0">$<%= Number(kpiData.teamPipeline).toLocaleString('en-US', { minimumFractionDigits: 0 }) %></h3>
+            <span class="small text-muted"><%= kpiData.openOpps %> open opportunities</span>
+          </div>
+          <div class="kpi-icon-badge bg-primary-subtle text-primary">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Weighted Pipeline</div>
+            <h3 class="fw-bold mt-1 mb-0 text-success">$<%= Number(kpiData.weightedPipeline).toLocaleString('en-US', { minimumFractionDigits: 0 }) %></h3>
+            <span class="small text-muted">Probability-adjusted</span>
+          </div>
+          <div class="kpi-icon-badge bg-success-subtle text-success">
+            <i class="bi bi-graph-up"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Won Deals</div>
+            <h3 class="fw-bold mt-1 mb-0">$<%= Number(kpiData.wonSum).toLocaleString('en-US', { minimumFractionDigits: 0 }) %></h3>
+            <span class="small text-success"><%= kpiData.wonCount %> deals closed</span>
+          </div>
+          <div class="kpi-icon-badge bg-info-subtle text-info">
+            <i class="bi bi-trophy-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Team Leads</div>
+            <h3 class="fw-bold mt-1 mb-0"><%= kpiData.teamLeads %></h3>
+            <span class="small text-muted"><%= kpiData.teamCustomers %> active customers</span>
+          </div>
+          <div class="kpi-icon-badge bg-warning-subtle text-warning">
+            <i class="bi bi-funnel-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% } else { %>
+    <!-- Sales Executive KPI Cards -->
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">My Active Pipeline</div>
+            <h3 class="fw-bold mt-1 mb-0">$<%= Number(kpiData.myPipeline).toLocaleString('en-US', { minimumFractionDigits: 0 }) %></h3>
+            <span class="small text-muted"><%= kpiData.myOpenOpps %> open deals</span>
+          </div>
+          <div class="kpi-icon-badge bg-primary-subtle text-primary">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Weighted Value</div>
+            <h3 class="fw-bold mt-1 mb-0 text-success">$<%= Number(kpiData.myWeighted).toLocaleString('en-US', { minimumFractionDigits: 0 }) %></h3>
+            <span class="small text-muted">Expected revenue</span>
+          </div>
+          <div class="kpi-icon-badge bg-success-subtle text-success">
+            <i class="bi bi-pie-chart-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">My Leads & Cust</div>
+            <h3 class="fw-bold mt-1 mb-0"><%= kpiData.myLeads %></h3>
+            <span class="small text-muted"><%= kpiData.myCustomers %> customers assigned</span>
+          </div>
+          <div class="kpi-icon-badge bg-info-subtle text-info">
+            <i class="bi bi-person-lines-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+      <div class="card kpi-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase">Won Deals</div>
+            <h3 class="fw-bold mt-1 mb-0 text-primary">$<%= Number(kpiData.wonSum).toLocaleString('en-US', { minimumFractionDigits: 0 }) %></h3>
+            <span class="small text-success"><%= kpiData.wonCount %> deals won</span>
+          </div>
+          <div class="kpi-icon-badge bg-warning-subtle text-warning">
+            <i class="bi bi-trophy-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<!-- Charts & Highlights Section -->
+<div class="row g-4 mb-4">
+  <!-- Pipeline Stages Chart -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm rounded-3 h-100">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="card-title mb-0 fw-bold"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Sales Pipeline by Stage</h6>
+        <a href="/opportunities" class="small text-decoration-none">View All Opportunities &rarr;</a>
+      </div>
+      <div class="card-body">
+        <canvas id="pipelineChart" height="230"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead Status Distribution Chart -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-3 h-100">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="card-title mb-0 fw-bold"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Lead Status Breakdown</h6>
+        <a href="/leads" class="small text-decoration-none">View Leads &rarr;</a>
+      </div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <div style="max-height: 230px; width: 100%;">
+          <canvas id="leadStatusChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Follow-Ups / Activity Section for Sales Exec & Managers -->
+<% if (role === 'Sales Executive' && (upcomingFollowUps.length > 0 || overdueFollowUps.length > 0)) { %>
+  <div class="row g-4 mb-4">
+    <!-- Overdue Follow-Ups -->
+    <% if (overdueFollowUps.length > 0) { %>
+      <div class="col-lg-6">
+        <div class="card border-danger border-opacity-25 shadow-sm rounded-3">
+          <div class="card-header bg-danger bg-opacity-10 py-3 border-bottom border-danger border-opacity-25 d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0 fw-bold text-danger"><i class="bi bi-exclamation-circle-fill me-2"></i>Overdue Follow-Ups (<%= overdueFollowUps.length %>)</h6>
+            <a href="/followups?filterRange=overdue" class="btn btn-sm btn-danger py-0">View All</a>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              <% overdueFollowUps.forEach(f => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                  <div>
+                    <div class="fw-semibold text-dark"><%= f.subject %></div>
+                    <small class="text-danger"><i class="bi bi-calendar-x me-1"></i>Due: <%= f.follow_up_date %> (<%= f.type %>)</small>
+                  </div>
+                  <form action="/followups/<%= f.id %>/complete" method="POST" class="m-0">
+                    <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+                    <button type="submit" class="btn btn-sm btn-outline-success">Done</button>
+                  </form>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Upcoming Follow-Ups -->
+    <div class="col-lg-<%= overdueFollowUps.length > 0 ? '6' : '12' %>">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+          <h6 class="card-title mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Upcoming Follow-Ups</h6>
+          <a href="/followups" class="small text-decoration-none">Manage Schedule &rarr;</a>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            <% if (upcomingFollowUps.length === 0) { %>
+              <li class="list-group-item text-muted text-center py-3">No upcoming follow-ups scheduled.</li>
+            <% } else { %>
+              <% upcomingFollowUps.forEach(f => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                  <div>
+                    <div class="fw-semibold text-dark"><%= f.subject %></div>
+                    <small class="text-muted"><i class="bi bi-calendar-check me-1"></i>Date: <%= f.follow_up_date %> (<%= f.type %>)</small>
+                  </div>
+                  <form action="/followups/<%= f.id %>/complete" method="POST" class="m-0">
+                    <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+                    <button type="submit" class="btn btn-sm btn-outline-success">Done</button>
+                  </form>
+                </li>
+              <% }) %>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<!-- Admin Audit Highlights -->
+<% if (role === 'Admin' && chartData.recentAudit) { %>
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <h6 class="card-title mb-0 fw-bold"><i class="bi bi-shield-check me-2 text-primary"></i>Recent Security & Audit Trail</h6>
+      <a href="/audit" class="small text-decoration-none">View Full Audit Trail &rarr;</a>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Role</th>
+            <th>Module</th>
+            <th>Action</th>
+            <th>Result</th>
+            <th>IP Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% chartData.recentAudit.forEach(log => { %>
+            <tr>
+              <td class="small text-muted"><%= log.created_at %></td>
+              <td class="fw-semibold"><%= log.username || 'System' %></td>
+              <td><span class="badge bg-light text-dark border"><%= log.role %></span></td>
+              <td><span class="badge bg-primary-subtle text-primary border"><%= log.module %></span></td>
+              <td><code><%= log.action %></code></td>
+              <td>
+                <span class="badge <%= log.result === 'SUCCESS' ? 'bg-success' : 'bg-danger' %>"><%= log.result %></span>
+              </td>
+              <td class="small text-muted"><%= log.ip_address %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<!-- Chart.js Initialization Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Pipeline Chart
+    const pipelineData = <%- JSON.stringify(chartData.pipelineStages || []) %>;
+    const pLabels = pipelineData.map(d => d.stage);
+    const pAmounts = pipelineData.map(d => d.total_amount);
+    const pWeighted = pipelineData.map(d => d.weighted_amount || d.total_weighted_amount || 0);
+
+    const pCtx = document.getElementById('pipelineChart');
+    if (pCtx) {
+      new Chart(pCtx, {
+        type: 'bar',
+        data: {
+          labels: pLabels.length ? pLabels : ['Qualification', 'Proposal', 'Negotiation', 'Won', 'Lost'],
+          datasets: [
+            {
+              label: 'Total Value ($)',
+              data: pAmounts.length ? pAmounts : [0, 0, 0, 0, 0],
+              backgroundColor: '#3b82f6',
+              borderRadius: 4
+            },
+            {
+              label: 'Weighted Value ($)',
+              data: pWeighted.length ? pWeighted : [0, 0, 0, 0, 0],
+              backgroundColor: '#10b981',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.dataset.label}: $${Number(ctx.raw).toLocaleString()}`
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: v => '$' + Number(v).toLocaleString() }
+            }
+          }
+        }
+      });
+    }
+
+    // Lead Status Distribution Chart
+    const leadData = <%- JSON.stringify(leadStatusDist || []) %>;
+    const lLabels = leadData.map(d => d.status);
+    const lCounts = leadData.map(d => d.count);
+
+    const lCtx = document.getElementById('leadStatusChart');
+    if (lCtx) {
+      new Chart(lCtx, {
+        type: 'doughnut',
+        data: {
+          labels: lLabels.length ? lLabels : ['New', 'Contacted', 'Qualified', 'Converted'],
+          datasets: [{
+            data: lCounts.length ? lCounts : [1, 1, 1, 1],
+            backgroundColor: ['#0ea5e9', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#64748b']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+  });
+</script>

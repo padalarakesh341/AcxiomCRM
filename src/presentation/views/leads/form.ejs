@@ -1,0 +1,111 @@
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">
+          <i class="bi bi-<%= isEdit ? 'pencil-square' : 'funnel-fill' %> me-2 text-primary"></i>
+          <%= isEdit ? `Edit Lead - ${lead.title}` : 'Capture New Lead' %>
+        </h5>
+        <a href="/leads" class="btn btn-sm btn-outline-secondary">Cancel</a>
+      </div>
+      <div class="card-body p-4">
+        <form action="<%= isEdit ? `/leads/${lead.id}/edit` : '/leads' %>" method="POST" class="needs-validation" novalidate>
+          <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Lead Title / Opportunity Requirement <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Enterprise Cloud ERP Migration" value="<%= lead.title || '' %>" required>
+            <div class="invalid-feedback">Title is required.</div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Contact Person <span class="text-danger">*</span></label>
+              <input type="text" name="contactPerson" class="form-control" placeholder="e.g. Sarah Connor" value="<%= lead.contact_person || '' %>" required>
+              <div class="invalid-feedback">Contact person name is required.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Company / Organization</label>
+              <input type="text" name="company" class="form-control" placeholder="e.g. Cyberdyne Inc" value="<%= lead.company || '' %>">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Email Address <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" placeholder="e.g. s.connor@cyberdyne.io" value="<%= lead.email || '' %>" required>
+              <div class="invalid-feedback">Valid email address is required.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Phone Number <span class="text-danger">*</span></label>
+              <input type="text" name="phone" class="form-control" placeholder="e.g. +1-555-0812" value="<%= lead.phone || '' %>" required>
+              <div class="invalid-feedback">Phone number is required.</div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Lead Source</label>
+              <select name="source" class="form-select">
+                <option value="Website" <%= lead.source === 'Website' ? 'selected' : '' %>>Website</option>
+                <option value="Referral" <%= lead.source === 'Referral' ? 'selected' : '' %>>Referral</option>
+                <option value="Cold Call" <%= lead.source === 'Cold Call' ? 'selected' : '' %>>Cold Call</option>
+                <option value="Campaign" <%= lead.source === 'Campaign' ? 'selected' : '' %>>Campaign</option>
+                <option value="Partner" <%= lead.source === 'Partner' ? 'selected' : '' %>>Partner</option>
+                <option value="Other" <%= lead.source === 'Other' ? 'selected' : '' %>>Other</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Workflow Status</label>
+              <select name="status" class="form-select">
+                <option value="New" <%= (!lead.status || lead.status === 'New') ? 'selected' : '' %>>New</option>
+                <option value="Contacted" <%= lead.status === 'Contacted' ? 'selected' : '' %>>Contacted</option>
+                <option value="Qualified" <%= lead.status === 'Qualified' ? 'selected' : '' %>>Qualified</option>
+                <option value="Unqualified" <%= lead.status === 'Unqualified' ? 'selected' : '' %>>Unqualified</option>
+                <option value="Lost" <%= lead.status === 'Lost' ? 'selected' : '' %>>Lost</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">Priority</label>
+              <select name="priority" class="form-select">
+                <option value="High" <%= lead.priority === 'High' ? 'selected' : '' %>>High</option>
+                <option value="Medium" <%= (!lead.priority || lead.priority === 'Medium') ? 'selected' : '' %>>Medium</option>
+                <option value="Low" <%= lead.priority === 'Low' ? 'selected' : '' %>>Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Assigned Sales Executive</label>
+            <% const userRole = currentUser.role_name || currentUser.role; %>
+            <% if (userRole === 'Sales Executive') { %>
+              <input type="text" class="form-control bg-light" value="<%= currentUser.full_name %>" readonly>
+              <input type="hidden" name="assignedUserId" value="<%= currentUser.id %>">
+            <% } else { %>
+              <select name="assignedUserId" class="form-select">
+                <option value="">-- Unassigned --</option>
+                <% executives.forEach(e => { %>
+                  <option value="<%= e.id %>" <%= lead.assigned_user_id === e.id ? 'selected' : '' %>>
+                    <%= e.full_name %> (<%= e.role_name %>)
+                  </option>
+                <% }) %>
+              </select>
+            <% } %>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-semibold">Notes & Discovery Insights</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Enter background requirements, qualification criteria..."><%= lead.notes || '' %></textarea>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/leads" class="btn btn-light border px-4">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4 fw-semibold shadow-sm">
+              <i class="bi bi-check-lg me-1"></i> <%= isEdit ? 'Save Changes' : 'Capture Lead' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

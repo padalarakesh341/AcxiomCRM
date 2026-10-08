@@ -1,0 +1,181 @@
+/* AcxiomCRM Modern Professional Theme */
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --sidebar-bg: #0f172a;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #3b82f6;
+  --bg-canvas: #f8fafc;
+  --card-border: #e2e8f0;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sidebar & Layout */
+.app-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  color: #94a3b8;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.sidebar .brand-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar .brand-header i {
+  color: #38bdf8;
+}
+
+.sidebar .nav-link {
+  color: #94a3b8;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-radius: 0;
+  transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover {
+  color: #ffffff;
+  background-color: var(--sidebar-hover);
+}
+
+.sidebar .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(59, 130, 246, 0.15);
+  border-left: 4px solid var(--sidebar-active);
+}
+
+.sidebar .nav-category {
+  padding: 1rem 1.5rem 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Top Navbar */
+.top-navbar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--card-border);
+  padding: 0.75rem 1.75rem;
+}
+
+/* KPI Cards */
+.kpi-card {
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+.kpi-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+/* Kanban Board */
+.kanban-board {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1.5rem;
+}
+
+.kanban-column {
+  flex: 0 0 310px;
+  background-color: #f1f5f9;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  min-height: 520px;
+}
+
+.kanban-card {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.85rem;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+/* Status Badges */
+.badge-status {
+  padding: 0.35em 0.65em;
+  font-weight: 600;
+  border-radius: 20px;
+  font-size: 0.78rem;
+}
+
+/* Tables */
+.table th {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background-color: #f8fafc;
+}
+
+.table td {
+  vertical-align: middle;
+  font-size: 0.92rem;
+}
+
+/* Password meter indicator */
+.password-rule-item {
+  font-size: 0.82rem;
+  transition: color 0.2s ease;
+}
+.password-rule-item.valid {
+  color: #16a34a;
+}
+.password-rule-item.invalid {
+  color: #94a3b8;
+}

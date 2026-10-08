@@ -1,0 +1,340 @@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold mb-1">CRM Business Reports & Analytics</h3>
+    <p class="text-muted small mb-0">Exportable operational summaries and pipeline performance intelligence.</p>
+  </div>
+  <div>
+    <a href="/reports/export/<%= reportType %>" class="btn btn-outline-primary shadow-sm fw-semibold">
+      <i class="bi bi-file-earmark-arrow-down me-1"></i> Export <%= reportType.toUpperCase() %> CSV
+    </a>
+  </div>
+</div>
+
+<!-- Report Navigation Tabs -->
+<ul class="nav nav-pills mb-4 gap-2 bg-white p-2 rounded-3 shadow-sm border">
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'customers' ? 'active' : '' %>" href="/reports?type=customers">Customers</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'leads' ? 'active' : '' %>" href="/reports?type=leads">Leads</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'followups' ? 'active' : '' %>" href="/reports?type=followups">Follow-Ups</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'opportunities' ? 'active' : '' %>" href="/reports?type=opportunities">Opportunities</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'pipeline' ? 'active' : '' %>" href="/reports?type=pipeline">Pipeline Summary</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'conversion' ? 'active' : '' %>" href="/reports?type=conversion">Conversion Metrics</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'user-activity' ? 'active' : '' %>" href="/reports?type=user-activity">User Activity</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <%= reportType === 'audit' ? 'active' : '' %>" href="/reports?type=audit">Audit Events</a>
+  </li>
+</ul>
+
+<!-- Report Content Body -->
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+  <div class="card-body p-0">
+    <% if (reportType === 'customers') { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Company</th>
+              <th>Status</th>
+              <th>Assigned Owner</th>
+              <th>Created Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reportData.forEach(c => { %>
+              <tr>
+                <td>#<%= c.id %></td>
+                <td class="fw-bold"><%= c.name %></td>
+                <td><%= c.email %></td>
+                <td><%= c.phone %></td>
+                <td><%= c.company || '-' %></td>
+                <td><span class="badge <%= c.status === 'Active' ? 'bg-success' : 'bg-secondary' %>"><%= c.status %></span></td>
+                <td><%= c.owner_name || 'Unassigned' %></td>
+                <td class="small text-muted"><%= c.created_at %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    <% } else if (reportType === 'leads') { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Contact Person</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Assigned Executive</th>
+              <th>Converted Customer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reportData.forEach(l => { %>
+              <tr>
+                <td>#<%= l.id %></td>
+                <td class="fw-bold"><%= l.title %></td>
+                <td><%= l.contact_person %></td>
+                <td><span class="badge bg-light text-dark border"><%= l.source %></span></td>
+                <td><span class="badge bg-primary-subtle text-primary border"><%= l.status %></span></td>
+                <td><%= l.priority %></td>
+                <td><%= l.assigned_to_name || 'Unassigned' %></td>
+                <td><%= l.converted_customer_name || '-' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    <% } else if (reportType === 'followups') { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>Entity</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Due Date</th>
+              <th>Assigned To</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reportData.forEach(f => { %>
+              <tr>
+                <td>#<%= f.id %></td>
+                <td class="fw-bold"><%= f.subject %></td>
+                <td><%= f.entity_type %> #<%= f.entity_id %></td>
+                <td><span class="badge bg-light text-dark border"><%= f.type %></span></td>
+                <td><span class="badge <%= f.status === 'Completed' ? 'bg-success' : 'bg-warning text-dark' %>"><%= f.status %></span></td>
+                <td><%= f.follow_up_date %></td>
+                <td><%= f.assigned_to_name %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    <% } else if (reportType === 'opportunities') { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Opportunity Name</th>
+              <th>Customer</th>
+              <th>Stage</th>
+              <th>Amount ($)</th>
+              <th>Probability (%)</th>
+              <th>Weighted ($)</th>
+              <th>Close Date</th>
+              <th>Owner</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reportData.forEach(o => { %>
+              <tr>
+                <td>#<%= o.id %></td>
+                <td class="fw-bold"><%= o.name %></td>
+                <td><%= o.customer_name %></td>
+                <td><span class="badge bg-primary-subtle text-primary border"><%= o.stage %></span></td>
+                <td class="fw-semibold">$<%= Number(o.amount).toLocaleString() %></td>
+                <td><%= o.probability %>%</td>
+                <td class="fw-bold text-success">$<%= Number(o.weighted_amount).toLocaleString() %></td>
+                <td><%= o.expected_close_date %></td>
+                <td><%= o.owner_name %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    <% } else if (reportType === 'pipeline') { %>
+      <div class="p-4">
+        <h5 class="fw-bold mb-3">Pipeline Stage Summary</h5>
+        <div class="table-responsive mb-4">
+          <table class="table table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Stage</th>
+                <th>Deal Count</th>
+                <th>Total Value ($)</th>
+                <th>Weighted Forecast ($)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% reportData.stageSummary.forEach(s => { %>
+                <tr>
+                  <td class="fw-bold"><%= s.stage %></td>
+                  <td><%= s.count %></td>
+                  <td>$<%= Number(s.total_amount).toLocaleString() %></td>
+                  <td class="fw-bold text-success">$<%= Number(s.total_weighted_amount).toLocaleString() %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <h5 class="fw-bold mb-3">Owner-Wise Pipeline Distribution</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Owner Name</th>
+                <th>Deals Managed</th>
+                <th>Pipeline Value ($)</th>
+                <th>Weighted Forecast ($)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% reportData.ownerSummary.forEach(u => { %>
+                <tr>
+                  <td class="fw-bold"><%= u.owner_name %></td>
+                  <td><%= u.count %></td>
+                  <td>$<%= Number(u.total_amount).toLocaleString() %></td>
+                  <td class="fw-bold text-success">$<%= Number(u.total_weighted_amount).toLocaleString() %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    <% } else if (reportType === 'conversion') { %>
+      <div class="p-4">
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="text-muted small">Total Leads Captured</div>
+              <h3 class="fw-bold mb-0"><%= reportData.totalLeads %></h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="text-muted small">Converted Leads</div>
+              <h3 class="fw-bold text-success mb-0"><%= reportData.convertedLeads %></h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="text-muted small">Lead Conversion Rate</div>
+              <h3 class="fw-bold text-primary mb-0"><%= reportData.conversionRate %>%</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded text-center border">
+              <div class="text-muted small">Deal Win Rate</div>
+              <h3 class="fw-bold text-success mb-0"><%= reportData.winRate %>%</h3>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="fw-bold mb-3">Source-Wise Lead Conversion Performance</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Lead Source</th>
+                <th>Total Leads</th>
+                <th>Converted Deals</th>
+                <th>Conversion Rate (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% reportData.leadSourceBreakdown.forEach(src => { %>
+                <tr>
+                  <td class="fw-bold"><%= src.source %></td>
+                  <td><%= src.total %></td>
+                  <td><%= src.converted %></td>
+                  <td class="fw-bold text-primary"><%= src.conversion_rate %>%</td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    <% } else if (reportType === 'user-activity') { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Total Actions Logged</th>
+              <th>Assigned Leads</th>
+              <th>Opportunities Managed</th>
+              <th>Follow-Ups Completed</th>
+              <th>Last Active</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reportData.forEach(u => { %>
+              <tr>
+                <td class="fw-bold"><%= u.full_name %></td>
+                <td><span class="badge bg-light text-dark border"><%= u.role_name %></span></td>
+                <td><span class="badge <%= u.is_active ? 'bg-success' : 'bg-secondary' %>"><%= u.is_active ? 'Active' : 'Inactive' %></span></td>
+                <td class="fw-bold text-primary"><%= u.total_actions %></td>
+                <td><%= u.assigned_leads %></td>
+                <td><%= u.assigned_opportunities %></td>
+                <td><%= u.completed_follow_ups %></td>
+                <td class="small text-muted"><%= u.last_login_at || 'Never' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    <% } else if (reportType === 'audit') { %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>User</th>
+              <th>Role</th>
+              <th>Module</th>
+              <th>Action</th>
+              <th>Result</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reportData.forEach(a => { %>
+              <tr>
+                <td class="small text-muted"><%= a.created_at %></td>
+                <td class="fw-semibold"><%= a.username %></td>
+                <td><%= a.role %></td>
+                <td><span class="badge bg-primary-subtle text-primary border"><%= a.module %></span></td>
+                <td><code><%= a.action %></code></td>
+                <td><span class="badge <%= a.result === 'SUCCESS' ? 'bg-success' : 'bg-danger' %>"><%= a.result %></span></td>
+                <td class="small text-muted"><%= a.details %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</div>
